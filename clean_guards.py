@@ -11,17 +11,20 @@ def clean_guards(lines, filename):
                 lines[-1].startswith('#endif'))
     if all(conditions):
         return ['#pragma once\n'] + lines[2:-1]
-
-    print(filename, 'could not be cleaned!', conditions)
+    if not lines[0].startswith('#pragma'):
+        print(filename, 'could not be cleaned!', conditions)
 
 
 def read_clean_write(*files):
+    count = 0
     for filename in files:
         lines = open(filename).readlines()
         lines = clean_guards(lines, filename)
-
-        lines and open(filename, 'w').writelines(lines)
+        if lines:
+            open(filename, 'w').writelines(lines)
+            count += 1
+    return count
 
 
 if __name__ == '__main__':
-    read_clean_write(*sys.argv[1:])
+    print(read_clean_write(*sys.argv[1:]), 'files cleaned')
